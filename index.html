@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Server Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind.config.js"></script>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-mc-dark text-white min-h-screen relative overflow-x-hidden">
+
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-[-1] pointer-events-none">
+        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-blue-900/20 to-transparent"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-mc-gold/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="container mx-auto px-6 py-6 flex justify-between items-center z-50 relative">
+        <h1
+            class="text-2xl font-bold text-mc-gold tracking-wider uppercase drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)]">
+            MineStore
+        </h1>
+        <button id="adminToggleBtn" class="text-sm text-gray-400 hover:text-white transition-colors">
+            Admin Area
+        </button>
+    </nav>
+
+    <!-- Main Content (User View) -->
+    <main id="userView" class="container mx-auto px-6 pb-20">
+
+        <!-- Hero Section -->
+        <header class="text-center py-12 md:py-20">
+            <h2
+                class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                Upgrade Your Experience
+            </h2>
+            <p class="text-gray-400 max-w-xl mx-auto text-lg">
+                Dapatkan rank, item, dan perks eksklusif untuk server Minecraft kami. Pengiriman cepat dan otomatis.
+            </p>
+        </header>
+
+        <!-- Catalog Section -->
+        <section>
+            <div class="flex justify-between items-end mb-6">
+                <h3 class="text-2xl font-semibold text-mc-gold border-l-4 border-mc-gold pl-3">Catalog</h3>
+                <div class="flex gap-2">
+                    <button onclick="scrollCatalog(-1)"
+                        class="p-2 rounded-full bg-mc-card hover:bg-gray-700 text-mc-gold transition">←</button>
+                    <button onclick="scrollCatalog(1)"
+                        class="p-2 rounded-full bg-mc-card hover:bg-gray-700 text-mc-gold transition">→</button>
+                </div>
+            </div>
+
+            <!-- Horizontal Scroll Container -->
+            <div id="catalogContainer"
+                class="flex overflow-x-auto gap-6 pb-8 scrollbar-hide snap-x snap-mandatory scroll-smooth">
+                <!-- Items will be injected here -->
+                <div class="w-full text-center text-gray-500 py-10 animate-pulse">Loading Items...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Admin Panel (Overlay) -->
+    <div id="adminPanel" class="fixed inset-0 bg-black/90 z-[100] hidden overflow-y-auto">
+        <div class="min-h-screen p-6">
+            <div class="max-w-5xl mx-auto">
+
+                <!-- Admin Header -->
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold text-mc-gold">Admin Dashboard</h2>
+                    <button id="closeAdminBtn"
+                        class="px-4 py-2 rounded border border-red-500 text-red-500 hover:bg-red-500/10 transition">
+                        Exit Panel
+                    </button>
+                </div>
+
+                <!-- Admin Login Form -->
+                <div id="adminLoginForm" class="max-w-md mx-auto mt-20 p-8 glass-panel rounded-xl">
+                    <h3 class="text-xl font-bold mb-4 text-center">Login Access</h3>
+                    <input type="password" id="adminPasswordInput" placeholder="Enter Admin Password"
+                        class="w-full bg-mc-dark border border-gray-700 rounded p-3 mb-4 text-white focus:border-mc-gold outline-none">
+                    <button onclick="handleAdminLogin()"
+                        class="w-full bg-mc-gold text-black font-bold py-3 rounded hover:bg-mc-gold-hover transition">
+                        Login
+                    </button>
+                    <p id="loginError" class="text-red-500 text-sm mt-3 hidden text-center">Password salah!</p>
+                </div>
+
+                <!-- Admin Content (Protected) -->
+                <div id="adminContent" class="hidden space-y-8">
+
+                    <!-- Settings Section -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-xl font-bold mb-4 text-gray-300">Store Settings</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">WhatsApp Admin (628...)</label>
+                                <input type="text" id="settingWA"
+                                    class="w-full bg-mc-dark border border-gray-700 rounded p-2 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Message Template</label>
+                                <input type="text" id="settingMsg"
+                                    class="w-full bg-mc-dark border border-gray-700 rounded p-2 text-white"
+                                    placeholder="Halo admin, mau beli {item}...">
+                                <p class="text-xs text-gray-500 mt-1">Use tags: {item}, {price}, {stock}</p>
+                            </div>
+                        </div>
+                        <button onclick="saveSettings()"
+                            class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-semibold transition">
+                            Save Settings
+                        </button>
+                    </div>
+
+                    <!-- Item Management -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-300">Item Management</h3>
+                            <button onclick="openItemModal()"
+                                class="px-4 py-2 bg-mc-gold text-black rounded font-bold hover:bg-mc-gold-hover transition">
+                                + Add New Item
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="text-gray-400 border-b border-gray-700 text-sm">
+                                        <th class="p-3">Image</th>
+                                        <th class="p-3">Name</th>
+                                        <th class="p-3">Price</th>
+                                        <th class="p-3">Stock</th>
+                                        <th class="p-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminItemsTable" class="text-sm">
+                                    <!-- Admin items rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="itemModal" class="fixed inset-0 bg-black/80 z-[150] hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg p-6 rounded-xl relative">
+            <h3 class="text-xl font-bold mb-4 text-mc-gold" id="modalTitle">Add Item</h3>
+            <input type="hidden" id="editItemId">
+
+            <div class="space-y-3">
+                <input type="text" id="itemName" placeholder="Item Name"
+                    class="w-full bg-mc-dark border border-gray-700 rounded p-3 text-white">
+                <input type="text" id="itemImg" placeholder="Image URL"
+                    class="w-full bg-mc-dark border border-gray-700 rounded p-3 text-white">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="itemPrice" placeholder="Price (IDR)"
+                        class="w-full bg-mc-dark border border-gray-700 rounded p-3 text-white">
+                    <input type="number" id="itemStock" placeholder="Stock"
+                        class="w-full bg-mc-dark border border-gray-700 rounded p-3 text-white">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeItemModal()" class="px-4 py-2 text-gray-400 hover:text-white">Cancel</button>
+                <button onclick="submitItem()"
+                    class="px-6 py-2 bg-mc-gold text-black font-bold rounded hover:bg-mc-gold-hover">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK & LOGIC -->
+    <script type="module" src="js/script.js"></script>
+</body>
+
+</html>
